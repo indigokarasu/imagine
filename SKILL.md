@@ -4,13 +4,13 @@ description: >
   Imagine: a professional art-direction engine for text-to-image generation.
   Based on the Narrative Style Creation & Transfer methodology, Imagine
   separates 'Style' from 'Content' to ensure aesthetic consistency across
-  image series. It supports predefined library styles, image-to-style 
+  image series. It supports a custom library of styles, image-to-style 
   extraction via multi-modal LLMs, and a strict prompt-separation workflow 
   to prevent "style drift."
 metadata:
   author: Indigo Karasu
   email: mx.indigo.karasu@gmail.com
-  version: "1.0.0"
+  version: "1.0.1"
   hermes:
     tags: [creative, images, generative-ai]
     category: visual
