@@ -24,7 +24,7 @@ The skill ships a curated library of baseline styles, extracts new styles from r
 
 ## Setup
 
-`imagine.init` runs on first use and creates `~/openclaw/data/ocas-imagine/` (with `config.json`, `styles.jsonl`, `history.jsonl`) and `~/openclaw/journals/ocas-imagine/`. No manual setup is required. No API keys, accounts, or credentials are needed — Pollinations.ai is used anonymously.
+`imagine.init` runs on first use and creates `{agent_root}/commons/data/ocas-imagine/` (with `config.json`, `styles.jsonl`, `history.jsonl`) and `{agent_root}/commons/journals/ocas-imagine/`. No manual setup is required. No API keys, accounts, or credentials are needed — Pollinations.ai is used anonymously.
 
 ## Dependencies
 
@@ -35,12 +35,16 @@ The skill ships a curated library of baseline styles, extracts new styles from r
 
 ## Changelog
 
+### v1.0.4 — April 14, 2026
+- Storage paths migrated from `~/openclaw/...` to `{agent_root}/commons/...` per updated storage convention spec.
+- All path references updated across SKILL.md, README.md, and `references/journal.md`.
+
 ### v1.0.3 — April 14, 2026
 - Split `references/default_styles.md` into one file per style (`soma.md`, `noir.md`, `hiro.md`, `comic.md`, `candy.md`, `vaporware.md`); `default_styles.md` is now an index.
 - Support File Map in SKILL.md lists each style file individually.
 
 ### v1.0.2 — April 14, 2026
-- Moved storage from `{agent_root}/commons/…` to `~/openclaw/…` per `spec-ocas-storage-conventions.md`.
+- Moved storage from `{agent_root}/commons/…` to `{agent_root}/commons/…` per `spec-ocas-storage-conventions.md`.
 - Added required System-skill sections (Responsibility Boundary, Optional Skill Cooperation, Ontology Mapping, Journal Outputs, Visibility, Background Tasks, Validation Rules).
 - Added `references/journal.md` (record schema).
 - Added `README.md` and `CHANGELOG.md` per `spec-ocas-skill-publishing.md`.

@@ -10,7 +10,7 @@ description: >
 metadata:
   author: Indigo Karasu
   email: mx.indigo.karasu@gmail.com
-  version: "1.0.3"
+  version: "1.0.4"
   hermes:
     tags: [creative, images, generative-ai]
     category: visual
@@ -19,11 +19,11 @@ metadata:
     visibility: public
     filesystem:
       read:
-        - "~/openclaw/data/ocas-imagine/"
-        - "~/openclaw/journals/ocas-imagine/"
+        - "{agent_root}/commons/data/ocas-imagine/"
+        - "{agent_root}/commons/journals/ocas-imagine/"
       write:
-        - "~/openclaw/data/ocas-imagine/"
-        - "~/openclaw/journals/ocas-imagine/"
+        - "{agent_root}/commons/data/ocas-imagine/"
+        - "{agent_root}/commons/journals/ocas-imagine/"
 ---
 
 # Imagine
@@ -80,7 +80,7 @@ The fundamental invariant of Imagine is that **Style** and **Content** must neve
 
 Use when the user wants an image in a known or predefined style.
 
-1. **Select Style:** retrieve a style definition from `references/default_styles.md` or a previously saved Style Prompt in `~/openclaw/data/ocas-imagine/styles.jsonl`.
+1. **Select Style:** retrieve a style definition from `references/default_styles.md` or a previously saved Style Prompt in `{agent_root}/commons/data/ocas-imagine/styles.jsonl`.
 2. **Expand Content:** turn the user's subject request into a detailed Content Prompt.
    - *Constraint:* describe what is in the scene, never how it looks (no colors, no style keywords, no lighting direction).
 3. **Synthesis:** concatenate Style + Content into the final API call.
@@ -101,7 +101,7 @@ Use when the user provides an image and wants to capture its soul for future use
    - Brushwork & Technique
    - Image Framing & Balance
 4. **Verification:** generate a Style Test image of an unrelated, simple subject to confirm the prompt is robust and free of content bleed.
-5. **Save:** append the resulting Style Prompt to `~/openclaw/data/ocas-imagine/styles.jsonl`.
+5. **Save:** append the resulting Style Prompt to `{agent_root}/commons/data/ocas-imagine/styles.jsonl`.
 6. **Journal:** write an Observation Journal record for the extraction.
 
 ## Commands
@@ -115,16 +115,16 @@ Use when the user provides an image and wants to capture its soul for future use
 ## Storage Layout
 
 ```
-~/openclaw/data/ocas-imagine/
+{agent_root}/commons/data/ocas-imagine/
   config.json        # ConfigBase fields + Imagine defaults
   styles.jsonl       # Custom user-created style prompts (append-only)
   history.jsonl      # Append-only log of generation prompts and results
-~/openclaw/journals/ocas-imagine/
+{agent_root}/commons/journals/ocas-imagine/
   YYYY-MM-DD/
     {run_id}.json    # One journal file per run
 ```
 
-Config follows `ConfigBase` from `spec-ocas-shared-schemas.md`. All paths use the `~/openclaw/` root per `spec-ocas-storage-conventions.md`.
+Config follows `ConfigBase` from `spec-ocas-shared-schemas.md`. All paths use the `{agent_root}/commons/` root per `spec-ocas-storage-conventions.md`.
 
 ## Implementation Details
 
@@ -166,4 +166,4 @@ Public.
 - Every generation writes to both `history.jsonl` and a journal file. A generation with no journal is invalid.
 - Style Prompts must not reference specific objects, people, or scene content.
 - Content Prompts must not reference colors, lighting, materials, or style keywords already covered by the selected Style Prompt.
-- All filesystem writes stay within `~/openclaw/data/ocas-imagine/` and `~/openclaw/journals/ocas-imagine/`.
+- All filesystem writes stay within `{agent_root}/commons/data/ocas-imagine/` and `{agent_root}/commons/journals/ocas-imagine/`.

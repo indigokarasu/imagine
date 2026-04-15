@@ -5,7 +5,7 @@ Every Imagine run writes exactly one journal file. Runs missing journals are inv
 ## Location
 
 ```
-~/openclaw/journals/ocas-imagine/YYYY-MM-DD/{run_id}.json
+{agent_root}/commons/journals/ocas-imagine/YYYY-MM-DD/{run_id}.json
 ```
 
 `run_id` format: `r_` + 6-char hex. Example: `r_a7f2c1`.

@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.4] - 2026-04-14
+
+### Changed
+- Storage paths migrated from `~/openclaw/...` to `{agent_root}/commons/...` per updated `spec-ocas-storage-conventions.md` (`{agent_root}` makes skills deployable across hosts; `/commons/` matches the Hermes runtime layout).
+- All path references updated across `SKILL.md` (frontmatter `filesystem.read|write`, Storage Layout, Validation Rules, Flow steps), `README.md` (Setup), and `references/journal.md` (Location).
+
 ## [1.0.3] - 2026-04-14
 
 ### Changed
@@ -15,10 +21,10 @@
 - `README.md` and `CHANGELOG.md` per `spec-ocas-skill-publishing.md`.
 - `references/journal.md` defining the Imagine journal record schema.
 - System-skill sections in SKILL.md: Responsibility Boundary, Optional Skill Cooperation, Ontology Mapping, Journal Outputs, Visibility, Background Tasks, Validation Rules.
-- Storage Layout section referencing `~/openclaw/` paths.
+- Storage Layout section referencing `{agent_root}/commons/` paths.
 
 ### Changed
-- Storage paths migrated from `{agent_root}/commons/data|journals/ocas-imagine/` to `~/openclaw/data/ocas-imagine/` and `~/openclaw/journals/ocas-imagine/` to match `spec-ocas-storage-conventions.md`.
+- Storage paths migrated from `{agent_root}/commons/data|journals/ocas-imagine/` to `~/openclaw/data/ocas-imagine/` and `~/openclaw/journals/ocas-imagine/` to match the then-current `spec-ocas-storage-conventions.md` (later superseded; see 1.0.4).
 - Frontmatter `filesystem.read` and `filesystem.write` entries updated to the `~/openclaw/` root.
 - Description refined for routing (explicit trigger / non-trigger language differentiating Imagine from `ocas-look`).
 
