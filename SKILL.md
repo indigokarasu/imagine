@@ -9,6 +9,11 @@ description: 'Imagine: an art-direction engine for text-to-image generation. Sep
 
   '
 license: MIT
+source: https://github.com/indigokarasu/imagine
+includes:
+  - references/**
+  - scripts/**
+
 metadata:
   author: Indigo Karasu
   version: 1.0.4
@@ -18,12 +23,19 @@ metadata:
 
 Imagine is an art-direction engine that treats image generation as a two-part process: **Style Prompting** and **Content Prompting**. Decoupling aesthetic DNA from subject matter lets a series of images share one visual identity while their content varies.
 
-## When to use
+## When to Use
 
 - Create a series of images with a consistent visual identity (comics, storyboards, concept art).
 - Translate a specific artistic style from a reference image into a reusable Style Prompt.
 - Generate images using the Flux model via the Pollinations.ai API.
 - Art-direct an LLM to produce a prompt that is style-pure (no content bleed).
+
+## When NOT to Use
+
+- Analyzing user-provided images to drive downstream decisions → use `ocas-look`
+- General web research on aesthetics or art history → use `ocas-sift`
+- Editing or post-processing existing images → use an image editor
+- Image captioning or description → use `ocas-look`
 
 ## Responsibility Boundary
 
@@ -53,14 +65,9 @@ Imagine extracts no Chronicle entities and emits no entity signals. Styles are i
 
 Every run produces exactly one journal file. See `references/journal.md` for the record schema.
 
-## The Core Methodology: Style-Content Separation
+## Core Methodology
 
-The fundamental invariant of Imagine is that **Style** and **Content** must never be mashed into a single descriptive paragraph.
-
-1. **Style Prompt:** a high-detail technical description of the aesthetic — Perspective, Lighting, Color Palette, Brushwork/Texture, Framing.
-2. **Content Prompt:** a pure description of objects, relative scale, placement, and narrative components.
-
-**The Rule:** if a Content Prompt describes a color, material, or lighting effect that the Style Prompt already handles, it is an overspecification and must be removed to avoid confusing the model.
+See `references/style_prompt_guide.md` for the full Style-Content separation methodology, the five standard style sections, and the overspecification rule.
 
 ## Operational Flows
 
@@ -127,15 +134,7 @@ Config follows `ConfigBase` from `spec-ocas-shared-schemas.md`. All paths use th
 
 ## Implementation Details
 
-### API Integration
-
-Primary endpoint — Pollinations.ai (zero-cost Flux):
-
-```
-https://image.pollinations.ai/prompt/{prompt}?width=1024&height=1024&model=flux&nologo=true
-```
-
-See `references/api_reference.md` for parameters, timeouts, and fallback endpoints.
+See `references/api_reference.md` for API parameters, timeouts, and fallback endpoints.
 
 ## Background Tasks
 
@@ -160,6 +159,21 @@ Imagine has no operational background tasks. The universal `imagine:update` self
    ```
 6. On failure → retry once. If second attempt fails, report the error and stop.
 7. Output exactly: `I updated Imagine from version {old} to {new}`
+
+## Support file map
+
+| File | When to read |
+|------|-------------|
+| `references/api_reference.md` | When working with api_reference |
+| `references/candy.md` | When working with candy |
+| `references/comic.md` | When working with comic |
+| `references/default_styles.md` | When working with default_styles |
+| `references/hiro.md` | When working with hiro |
+| `references/journal.md` | When working with journal |
+| `references/noir.md` | When working with noir |
+| `references/soma.md` | When working with soma |
+| `references/style_prompt_guide.md` | When working with style_prompt_guide |
+| `references/vaporware.md` | When working with vaporware |
 
 ## Visibility
 
