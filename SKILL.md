@@ -1,27 +1,34 @@
 ---
 name: ocas-imagine
-description: 'Imagine: an art-direction engine for text-to-image generation. Separates
-  Style from Content to keep aesthetic identity consistent across an image series.
-  Use when the user asks to generate, render, or illustrate an image (especially across
-  a series), to capture the style of a reference image for reuse, or to produce an
-  image in a named/saved style. Not for captioning, image analysis for decisions (that
-  is ocas-look), or photo editing.
-
-  '
+description: 'Art-direction engine for text-to-image generation. Separates Style from Content to keep aesthetic identity consistent across an image series. Use when generating, rendering, or illustrating images (especially across a series), capturing the style of a reference image for reuse, or producing an image in a named/saved style. Not for captioning, image analysis for decisions (use ocas-look), or photo editing.'
 license: MIT
 source: https://github.com/indigokarasu/imagine
 includes:
-  - references/**
-  - scripts/**
-
+- references/**
+- scripts/**
 metadata:
-  author: Indigo Karasu
-  version: 1.0.4
+  author: Indigo Karasu (indigokarasu)
+  version: 1.0.5
+tags:
+- image-generation
+- art-direction
+- text-to-image
+- creative
+triggers:
+- generate image
+- text to image
+- ai art
+- image generation
+- illustrate
 ---
 
 # Imagine
 
 Imagine is an art-direction engine that treats image generation as a two-part process: **Style Prompting** and **Content Prompting**. Decoupling aesthetic DNA from subject matter lets a series of images share one visual identity while their content varies.
+
+## Interactive Menu
+
+When invoked interactively, present a two-level menu. See `references/interactive-menu.md` for the full menu structure.
 
 ## When to Use
 
@@ -140,40 +147,9 @@ See `references/api_reference.md` for API parameters, timeouts, and fallback end
 
 Imagine has no operational background tasks. The universal `imagine:update` self-update cron is standard and is not enumerated here.
 
-## Self-update
+## Self-Update
 
-`imagine.update` pulls the latest package from the `source:` URL in this file's frontmatter. Runs silently — no output unless the version changed or an error occurred.
-
-1. Read `source:` from frontmatter → extract `{owner}/{repo}` from URL
-2. Read local version from SKILL.md frontmatter `metadata.version`
-3. Fetch remote version from SKILL.md frontmatter: `gh api "repos/{owner}/{repo}/contents/SKILL.md" --jq '.content' | base64 -d | grep 'version:' | head -1 | sed 's/.*\"\(.*\)\".*/\1/'`
-4. If remote version equals local version → stop silently
-5. Download and install:
-   ```bash
-   TMPDIR=$(mktemp -d)
-   gh api "repos/{owner}/{repo}/tarball/main" > "$TMPDIR/archive.tar.gz"
-   mkdir "$TMPDIR/extracted"
-   tar xzf "$TMPDIR/archive.tar.gz" -C "$TMPDIR/extracted" --strip-components=1
-   cp -R "$TMPDIR/extracted/"* ./
-   rm -rf "$TMPDIR"
-   ```
-6. On failure → retry once. If second attempt fails, report the error and stop.
-7. Output exactly: `I updated Imagine from version {old} to {new}`
-
-## Support file map
-
-| File | When to read |
-|------|-------------|
-| `references/api_reference.md` | When working with api_reference |
-| `references/candy.md` | When working with candy |
-| `references/comic.md` | When working with comic |
-| `references/default_styles.md` | When working with default_styles |
-| `references/hiro.md` | When working with hiro |
-| `references/journal.md` | When working with journal |
-| `references/noir.md` | When working with noir |
-| `references/soma.md` | When working with soma |
-| `references/style_prompt_guide.md` | When working with style_prompt_guide |
-| `references/vaporware.md` | When working with vaporware |
+See `references/self-update-imagine.md`.
 
 ## Visibility
 
