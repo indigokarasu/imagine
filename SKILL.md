@@ -9,11 +9,17 @@ includes:
 metadata:
   author: Indigo Karasu (indigokarasu)
   version: 1.0.5
-tags:
-- image-generation
-- art-direction
-- text-to-image
-- creative
+  hermes:
+    category: creative
+    tags:
+    - image-generation
+    - art-direction
+    - text-to-image
+    - creative
+    config:
+    - key: POLLINATIONS_API_BASE
+      description: Base URL for Pollinations.ai image generation endpoint
+      default: https://image.pollinations.ai
 triggers:
 - generate image
 - text to image
@@ -24,7 +30,7 @@ triggers:
 
 # Imagine
 
-Imagine is an art-direction engine that treats image generation as a two-part process: **Style Prompting** and **Content Prompting**. Decoupling aesthetic DNA from subject matter lets a series of images share one visual identity while their content varies.
+Imagine is an art-direction engine that treats image generation as a two-part process: **Style Prompting** and **Content Prompting**. Decoupling aesthetic DNA from subject matter lets a series of images share one visual identity while their content varies. This separation exists because style and content have different reuse patterns — style is stable across many images while content changes per request.
 
 ## Interactive Menu
 
@@ -61,10 +67,6 @@ Imagine functions standalone. When present it may cooperate with:
 
 Imagine never depends on these skills and must run normally if they are absent.
 
-## Ontology Mapping
-
-Imagine extracts no Chronicle entities and emits no entity signals. Styles are internal artifacts of this skill only.
-
 ## Journal Outputs
 
 - **Action Journal** — emitted by `imagine.generate` and `imagine.style.save` (external HTTP side effect or persistent state write).
@@ -82,6 +84,13 @@ See `references/style_prompt_guide.md` for the full Style-Content separation met
 
 Use when the user wants an image in a known or predefined style.
 
+**Checklist:**
+- [ ] Style selected from default_styles.md or styles.jsonl
+- [ ] Content Prompt describes only what is in the scene (no style/color/lighting keywords)
+- [ ] Final prompt = Style Prompt + Content Prompt (style first)
+- [ ] API call executed successfully
+- [ ] Action Journal record written with final prompt + image URL
+
 1. **Select Style:** retrieve a style definition from `references/default_styles.md` or a previously saved Style Prompt in `{agent_root}/commons/data/ocas-imagine/styles.jsonl`.
 2. **Expand Content:** turn the user's subject request into a detailed Content Prompt.
    - *Constraint:* describe what is in the scene, never how it looks (no colors, no style keywords, no lighting direction).
@@ -89,9 +98,22 @@ Use when the user wants an image in a known or predefined style.
 4. **Execute:** call the Pollinations.ai endpoint.
 5. **Journal:** write an Action Journal record with the final synthesized prompt and the resulting image URL.
 
+**I/O Example:**
+- Input: `imagine.generate --style noir --content "a detective standing under a streetlight at night"`
+- Output: `{"status": "ok", "image_url": "https://image.pollinations.ai/prompt/...", "journal_id": "2026-06-27_abc123"}`
+
 ### Flow 2: Style Extraction (image → style)
 
 Use when the user provides an image and wants to capture its soul for future use.
+
+**Checklist:**
+- [ ] Reference image loaded (path or URL)
+- [ ] Multi-modal analysis completed
+- [ ] Style extracted in exhaustive detail (no object/content names)
+- [ ] Organized into five standard sections
+- [ ] Style Test image generated and verified (no content bleed)
+- [ ] Style Prompt saved to styles.jsonl
+- [ ] Observation Journal record written
 
 1. **Visual Analysis:** use a multi-modal LLM (via `vision_analyze` or equivalent) to analyze the reference image.
 2. **Exhaustive Extraction:** apply the extraction prompt in `references/style_prompt_guide.md`.
@@ -105,6 +127,10 @@ Use when the user provides an image and wants to capture its soul for future use
 4. **Verification:** generate a Style Test image of an unrelated, simple subject to confirm the prompt is robust and free of content bleed.
 5. **Save:** append the resulting Style Prompt to `{agent_root}/commons/data/ocas-imagine/styles.jsonl`.
 6. **Journal:** write an Observation Journal record for the extraction.
+
+**I/O Example:**
+- Input: `imagine.extract --image https://example.com/ref-photo.jpg`
+- Output: `{"status": "ok", "style_name": "extracted-noir", "style_prompt": "...", "test_image_url": "...", "journal_id": "2026-06-27_def456"}`
 
 ## Commands
 
@@ -163,6 +189,18 @@ Public.
 - **API failures are terminal** — When Pollinations.ai is unavailable, there is no built-in retry in the skill itself. The degraded mode logs the error and returns a fallback suggestion to the user.
 - **Validation triple is mandatory** — Every generation must produce entries in `history.jsonl`, a journal file, AND `evidence.jsonl`. A generation missing any of these is considered invalid per the OKR data_integrity target.
 
+## Error Handling
+
+| Failure | Handling |
+|---|---|
+| Pollinations.ai API unreachable (timeout/5xx) | Log `degraded: pollinations_api` to evidence.jsonl, return error to user with suggestion to retry later |
+| vision_analyze fails on reference image | Retry once with explicit prompt asking for visual style description; if still failing, report error to user with image format requirements |
+| styles.jsonl is corrupted or unreadable | Initialize fresh styles.jsonl with only built-in defaults from `references/default_styles.md`; log corruption event to evidence.jsonl |
+| Content Prompt accidentally contains style keywords | Halt generation, report content bleed to user, request pure content description |
+| Style Test image shows content bleed | Do NOT save the Style Prompt; report extraction failure, suggest providing a cleaner reference image |
+| Journal write fails (permissions/disk) | Log failure to stderr, still return generation result to user, flag evidence record with `journal_write_failed: true` |
+| Invalid image path or URL in extract command | Return error with accepted formats: local file path, http(s) URL; do not attempt download of unsupported schemes |
+
 ## Support File Map
 
 | File | When to read |
@@ -187,10 +225,5 @@ Public.
 
 ## OKRs
 
-### schedule_adherence
-- **Target**: 100% — on-demand skill with no scheduled runs; every invocation completes or reports error within timeout.
-- **Measurement**: Evidence records in `evidence.jsonl` with timestamps; no silent failures.
-
-### data_integrity
-- **Target**: 100% — every generation/extraction run produces valid `history.jsonl` + journal + evidence records.
-- **Measurement**: Validation that all three record types exist and are well-formed after each run.
+- **schedule_adherence**: 100% — on-demand only; every invocation completes or reports error within timeout. Measured via evidence.jsonl timestamps.
+- **data_integrity**: 100% — every run produces valid history.jsonl + journal + evidence.jsonl records. A run missing any record is invalid.
