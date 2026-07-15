@@ -16,10 +16,6 @@ metadata:
     - art-direction
     - text-to-image
     - creative
-    config:
-    - key: POLLINATIONS_API_BASE
-      description: Base URL for Pollinations.ai image generation endpoint
-      default: https://image.pollinations.ai
 triggers:
 - generate image
 - text to image
@@ -40,7 +36,7 @@ When invoked interactively, present a two-level menu. See `references/interactiv
 
 - Create a series of images with a consistent visual identity (comics, storyboards, concept art).
 - Translate a specific artistic style from a reference image into a reusable Style Prompt.
-- Generate images using the Flux model via the Pollinations.ai API.
+- Generate images using the current active text-to-image mode exposed by Hermes.
 - Art-direct an LLM to produce a prompt that is style-pure (no content bleed).
 
 ## When NOT to Use
@@ -52,9 +48,9 @@ When invoked interactively, present a two-level menu. See `references/interactiv
 
 ## Responsibility Boundary
 
-**Imagine does:** style library management, style extraction from reference images, art-directed prompt synthesis, image generation via Pollinations.ai, journaling of every generation and extraction run.
+**Imagine does:** style library management, style extraction from reference images, art-directed prompt synthesis, image generation through the current active conversation model when that model is text-to-image capable, and journaling of every generation and extraction run.
 
-**Imagine does not:** analyze user-provided images to drive downstream decisions (that is `ocas-look`), perform general web research on aesthetics (that is `ocas-sift`), or edit/post-process existing images.
+**Imagine does not:** analyze user-provided images to drive downstream decisions (that is `ocas-look`), perform general web research on aesthetics (that is `ocas-sift`), edit/post-process existing images, call the separate `image_generate` tool, or bypass the active model by calling Pollinations/Pollination/FAL/direct provider endpoints.
 
 Adjacent responsibility: `ocas-look` consumes images as decision inputs; Imagine produces images as creative output. If a request is "look at this image and do X with the info," route to Look; if it is "make an image that looks like this," route to Imagine.
 
@@ -95,12 +91,12 @@ Use when the user wants an image in a known or predefined style.
 2. **Expand Content:** turn the user's subject request into a detailed Content Prompt.
    - *Constraint:* describe what is in the scene, never how it looks (no colors, no style keywords, no lighting direction).
 3. **Synthesis:** concatenate Style + Content into the final API call.
-4. **Execute:** call the Pollinations.ai endpoint.
+4. **Execute:** submit the synthesized prompt to the current active conversation model when it is text-to-image capable. Do not call the separate `image_generate` tool. Do not call Pollinations/Pollination, FAL, or any direct provider endpoint unless owner explicitly asks for that backend.
 5. **Journal:** write an Action Journal record with the final synthesized prompt and the resulting image URL.
 
 **I/O Example:**
 - Input: `imagine.generate --style noir --content "a detective standing under a streetlight at night"`
-- Output: `{"status": "ok", "image_url": "https://image.pollinations.ai/prompt/...", "journal_id": "2026-06-27_abc123"}`
+- Output: `{"status": "ok", "image": "<active-mode image URL or file path>", "journal_id": "2026-06-27_abc123"}`
 
 ### Flow 2: Style Extraction (image → style)
 
@@ -146,7 +142,7 @@ This skill implements the recovery contract from `spec-ocas-recovery.md`.
 
 - **Evidence**: Every generation/extraction run writes an evidence record to `{agent_root}/commons/data/ocas-imagine/evidence.jsonl`, including no-op runs. The `not_activity_reason` field is mandatory when no side effects occur.
 - **Gap detection**: Not applicable — on-demand only.
-- **Degraded mode**: When Pollinations.ai API is unavailable, logs `degraded: pollinations_api` and returns error with fallback suggestion.
+- **Degraded mode**: When the current active conversation model cannot emit image attachments through the current surface, logs `degraded: current_model_t2i_unavailable` and returns the interface error without using fallback backends.
 - **Log compaction**: Evidence and history logs older than 30 days compacted. Last 7 days retained.
 
 ## Storage Layout
@@ -167,7 +163,7 @@ Config follows `ConfigBase` from `spec-ocas-shared-schemas.md`. All paths use th
 
 ## Implementation Details
 
-See `references/api_reference.md` for API parameters, timeouts, and fallback endpoints.
+See `references/api_reference.md` for the current-model execution contract and failure handling.
 
 ## Background Tasks
 
@@ -186,14 +182,14 @@ Public.
 - **Content bleed invalidates a Style Prompt** — If a Style Prompt references specific objects, people, or scene content, it will produce inconsistent results across subjects. Always verify with a Style Test image of an unrelated, simple subject before saving.
 - **On-demand only — no background tasks** — Imagine has no scheduled cron jobs or heartbeat tasks. It runs purely on invocation. A generation failure won't be retried automatically.
 - **Style-content concatenation order matters** — The final API prompt must be Style Prompt first, then Content Prompt. Reversing the order causes the model to prioritize subject over aesthetics.
-- **API failures are terminal** — When Pollinations.ai is unavailable, there is no built-in retry in the skill itself. The degraded mode logs the error and returns a fallback suggestion to the user.
+- **Current-model failures are terminal** — When the active conversation model cannot emit image bytes/attachments through the current surface, there is no built-in retry in the skill itself. Log degraded mode and report the interface problem. Do not route around it via `image_generate`, Pollinations/Pollination, FAL, or direct provider calls.
 - **Validation triple is mandatory** — Every generation must produce entries in `history.jsonl`, a journal file, AND `evidence.jsonl`. A generation missing any of these is considered invalid per the OKR data_integrity target.
 
 ## Error Handling
 
 | Failure | Handling |
 |---|---|
-| Pollinations.ai API unreachable (timeout/5xx) | Log `degraded: pollinations_api` to evidence.jsonl, return error to user with suggestion to retry later |
+| Current model image path unavailable (interface/tooling error) | Log `degraded: current_model_t2i_unavailable` to evidence.jsonl, return the interface error to the user, and do not use fallback backends |
 | vision_analyze fails on reference image | Retry once with explicit prompt asking for visual style description; if still failing, report error to user with image format requirements |
 | styles.jsonl is corrupted or unreadable | Initialize fresh styles.jsonl with only built-in defaults from `references/default_styles.md`; log corruption event to evidence.jsonl |
 | Content Prompt accidentally contains style keywords | Halt generation, report content bleed to user, request pure content description |
@@ -213,7 +209,7 @@ Public.
 | `references/comic.md` | When user requests or you identify an ink linework + warm ground aesthetic |
 | `references/candy.md` | When user requests or you identify a plein-air + opaque color field aesthetic |
 | `references/vaporware.md` | When user requests or you identify a retro consumer electronics aesthetic |
-| `references/api_reference.md` | When tuning generation parameters or debugging API failures |
+| `references/api_reference.md` | When executing generation; contains the current-model routing contract |
 | `references/journal.md` | Before writing any journal file; contains the record schema |
 
 ## Validation Rules

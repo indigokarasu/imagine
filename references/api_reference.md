@@ -1,63 +1,53 @@
-# API Reference
+# Generation Routing Reference
 
-## Primary Endpoint: Pollinations.ai (Flux)
+## Primary Generation Path: Current Active Model
 
-**Cost:** Completely free. No API key required. No sign-up. No credit limits.
+Image generation must route through the **current active conversation model** when that model is text-to-image capable. For owner's current setup, `ocas-imagine` maps to the active model session rather than to a separate image backend.
 
-### Endpoint
-```
-https://image.pollinations.ai/prompt/{prompt}?width=1024&height=1024&model=flux&nologo=true
-```
+Do **not** call any of these as implementation fallbacks unless owner explicitly requests that backend:
 
-### Parameters
+- `image_generate`
+- Pollinations / Pollination
+- FAL
+- direct provider HTTP endpoints
+- ad-hoc scripts that download images from an external image service
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `prompt` | string (URL-encoded) | required | The combined Style + Content prompt |
-| `width` | int | 1024 | Image width in pixels |
-| `height` | int | 1024 | Image height in pixels |
-| `model` | string | `flux` | Model to use (`flux` recommended for best quality) |
-| `nologo` | bool | `true` | Removes Pollinations watermark |
-| `seed` | int | random | Set for reproducibility across generations |
-| `enhance` | bool | `false` | Model-side prompt enhancement (may fight your carefully crafted style) |
+## Prompt Contract
 
-### Recommendations
-- **Always use `model=flux`** — superior texture, lighting, and prompt adherence.
-- **Always use `nologo=true`** — clean output.
-- **Use `seed` for series** — ensures structural consistency across a batch; the Style Prompt handles aesthetic consistency.
-- **Avoid `enhance=true`** — the model's auto-enhancement may override your Style Prompt's specific directions.
-- **URL-encode the prompt** — spaces become `%20`, special characters must be encoded.
-- **Prompt length** — Flux handles long prompts well (8000+ chars effective). Concatenate Style + Content freely.
+1. Retrieve or synthesize the **Style Prompt**.
+2. Expand the user's request into a **Content Prompt** containing only scene content.
+3. Concatenate Style first, Content second.
+4. Submit the combined prompt to the active model as an image-generation request.
+5. Record the returned image URL or file path in history, journal, and evidence when a file/URL is produced.
 
-### Example Call (Python)
-```python
-import requests
-from urllib.parse import quote
+## Current-Model Request Shape
 
-style_prompt = "Perspective & Composition: Extreme macro, flat-on subject isolation..."
-content_prompt = "A raven perched on a craggy outcrop, wings half-spread, facing left."
-full_prompt = f"{style_prompt} {content_prompt}"
+Use natural-language image output instructions, not a tool call:
 
-url = f"https://image.pollinations.ai/prompt/{quote(full_prompt)}?width=1024&height=1024&model=flux&nologo=true&seed=42"
-response = requests.get(url, timeout=120)
-with open("output.jpg", "wb") as f:
-    f.write(response.content)
+```text
+Use the current active text-to-image model to generate an image.
+
+Style Prompt:
+<full style prompt>
+
+Content Prompt:
+<pure scene content>
+
+Output: image file/attachment, square aspect ratio unless the user requested otherwise.
 ```
 
-### Timeout
-Pollinations.ai can take 10–60 seconds per image. Set timeout to at least 120 seconds.
+## Recommendations
 
-### Rate Limiting
-No documented rate limit, but rapid sequential requests may queue. Allow ~2 seconds between calls for reliability.
+- Keep style instructions in the Style Prompt; keep subject/scene details in the Content Prompt.
+- Do not add model/vendor-specific parameters unless the active model interface exposes them directly.
+- Do not use hidden external endpoints as a fallback.
+- For a series, reuse the exact same Style Prompt across all images and vary only the Content Prompt.
+- If the active model cannot emit image bytes/attachments through the current surface, report that as an interface wiring problem; do not route around it.
 
----
+## Failure Handling
 
-## Alternative Endpoints (If Pollinations.ai Is Down)
+If the active model image path returns an error or is not exposed in the current surface:
 
-| Service | Free Tier | Model | Notes |
-|---------|-----------|-------|-------|
-| Hugging Face Inference API | Generous free tier | Stable Diffusion XL, Flux | Can have cold starts; requires free API key |
-| Together AI | $5 free credits (one-time) | FLUX.1-schnell | Credit-based, eventually runs out |
-| Replicate | Some free models | Various | Limited free predictions |
-
-These are **not** recommended as primary — Pollinations.ai is the only truly zero-cost, zero-auth option.
+- Log `degraded: current_model_t2i_unavailable` in evidence.
+- Return the error clearly.
+- Do not fall back to `image_generate`, Pollinations/Pollination, FAL, or other direct provider calls.

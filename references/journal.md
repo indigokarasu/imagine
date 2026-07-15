@@ -14,7 +14,7 @@ Every Imagine run writes exactly one journal file. Runs missing journals are inv
 
 | Command | Type | Rationale |
 |---|---|---|
-| `imagine.generate` | Action | External HTTP call to Pollinations.ai; resulting image URL persisted. |
+| `imagine.generate` | Action | Active text-to-image mode call; resulting image URL or file path persisted. |
 | `imagine.style.save` | Action | Mutates persistent library. |
 | `imagine.extract` | Observation | Analysis only; no external side effect beyond reading the input image. |
 | `imagine.library.list` | Observation | Read-only enumeration. |
@@ -52,7 +52,7 @@ All records share the `JournalEntry` envelope from `spec-ocas-shared-schemas.md`
   },
   "outputs": {
     "final_prompt": "<concatenated Style + Content prompt>",
-    "image_url": "https://image.pollinations.ai/prompt/...",
+    "image": "<active-mode image URL or file path>",
     "latency_ms": 18420
   }
 }
@@ -68,7 +68,7 @@ All records share the `JournalEntry` envelope from `spec-ocas-shared-schemas.md`
   },
   "outputs": {
     "style_prompt": "<five-section Style Prompt>",
-    "verification_image_url": "https://image.pollinations.ai/prompt/...",
+    "verification_image": "<active-mode image URL or file path>",
     "content_bleed_detected": false
   }
 }

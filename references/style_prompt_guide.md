@@ -118,4 +118,4 @@ The final generation prompt concatenates Style + Content in this order:
 
 Style first gives it more weight in most models. If the model supports negative prompts, add any known content-bleed terms from the Style Prompt as negatives.
 
-**Character limit warning:** DALL-E 3 has a ~4000 character limit. If your combined prompt exceeds this, the model will silently truncate. For DALL-E, compress the Style Prompt to fit. Flux (Pollinations.ai) has a higher effective limit (~8000+), so this is less of an issue.
+**Character limit warning:** Some active image-generation modes impose prompt limits or silently truncate. If the combined Style + Content prompt is long, compress the Style Prompt while preserving the five-section structure.
