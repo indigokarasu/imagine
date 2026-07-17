@@ -1,24 +1,15 @@
-# 🖼️ Imagine
+# imagine
 
-> **Art-direction engine for text-to-image generation — narrative style creation and transfer.**
+<p align="center">
+<img src="./assets/readme/hero.svg" width="100%" alt="Imagine: art-direction engine for text-to-image generation — applies narrative style creation and transfer methodology.">
+</p>
 
-## Why Imagine?
+imagine — Imagine: art-direction engine for text-to-image generation — applies narrative style creation and transfer methodology.
 
-Generating an image with AI is easy. Generating the RIGHT image — one that matches a specific artistic vision, style, and narrative context — is hard. Imagine applies a structured Narrative Style Creation & Transfer methodology to text-to-image generation, producing results that are intentional rather than random.
 
-Skill packages follow the [agentskills.io](https://agentskills.io/specification) open standard and are compatible with OpenClaw, Hermes Agent, Claude, and any agentskills.io-compliant client.
+> Tell it what you need. It does the work.
 
-## Quick Start
-
-```
-# Generate with style
-"Generate an image of a foggy San Francisco street in the style of Gregory Crewdson"
-
-# Create a style transfer
-"Take the mood from this reference image and apply it to a product shot"
-```
-
-## What It Does
+## What it does
 
 Imagine bridges the gap between creative vision and AI image generation. It uses a structured methodology for defining narrative style, transferring reference aesthetics, and producing images that match specific artistic directions. It's not just a prompt wrapper — it's an art-direction engine.
 
@@ -29,3 +20,7 @@ Imagine bridges the gap between creative vision and AI image generation. It uses
 ---
 
 *Imagine is part of the [OCAS Agent Suite](https://github.com/indigokarasu).*
+
+---
+
+*imagine is part of the [OCAS Agent Suite](https://github.com/indigokarasu).*
