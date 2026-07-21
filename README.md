@@ -1,7 +1,7 @@
 # imagine
 
 <p align="center">
-<img src="./assets/readme/hero.svg" width="100%" alt="Imagine: art-direction engine for text-to-image generation — applies narrative style creation and transfer methodology.">
+<img src="./assets/readme/hero.jpg" width="100%" alt="Imagine: art-direction engine for text-to-image generation — applies narrative style creation and transfer methodology.">
 </p>
 
 imagine — Imagine: art-direction engine for text-to-image generation — applies narrative style creation and transfer methodology.
