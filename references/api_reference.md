@@ -2,9 +2,9 @@
 
 ## Primary Generation Path: Current Active Model
 
-Image generation must route through the **current active conversation model** when that model is text-to-image capable. For owner's current setup, `ocas-imagine` maps to the active model session rather than to a separate image backend.
+Image generation must route through the **current active conversation model** when that model is text-to-image capable. For <operator>'s current setup, `ocas-imagine` maps to the active model session rather than to a separate image backend.
 
-Do **not** call any of these as implementation fallbacks unless owner explicitly requests that backend:
+Do **not** call any of these as implementation fallbacks unless <operator> explicitly requests that backend:
 
 - `image_generate`
 - Pollinations / Pollination
