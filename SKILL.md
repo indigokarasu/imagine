@@ -91,7 +91,7 @@ Use when the user wants an image in a known or predefined style.
 2. **Expand Content:** turn the user's subject request into a detailed Content Prompt.
    - *Constraint:* describe what is in the scene, never how it looks (no colors, no style keywords, no lighting direction).
 3. **Synthesis:** concatenate Style + Content into the final API call.
-4. **Execute:** submit the synthesized prompt to the current active conversation model when it is text-to-image capable. Do not call the separate `image_generate` tool. Do not call Pollinations/Pollination, FAL, or any direct provider endpoint unless owner explicitly asks for that backend.
+4. **Execute:** submit the synthesized prompt to the current active conversation model when it is text-to-image capable. Do not call the separate `image_generate` tool. Do not call Pollinations/Pollination, FAL, or any direct provider endpoint unless <operator> explicitly asks for that backend.
 5. **Journal:** write an Action Journal record with the final synthesized prompt and the resulting image URL.
 
 **I/O Example:**
