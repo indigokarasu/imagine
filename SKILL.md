@@ -2,7 +2,7 @@
 name: ocas-imagine
 description: 'Art-direction engine for text-to-image generation. Separates Style from Content to keep aesthetic identity consistent across an image series. Use when generating, rendering, or illustrating images (especially across a series), capturing the style of a reference image for reuse, or producing an image in a named/saved style. Not for captioning, image analysis for decisions (use ocas-look), or photo editing.'
 license: MIT
-source: https://github.com/indigokarasu/imagine
+source: https://github.com/<agent-handle>/imagine
 includes:
 - references/**
 - scripts/**
