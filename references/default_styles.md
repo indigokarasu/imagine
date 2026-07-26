@@ -12,11 +12,7 @@ When Flow 1 step 1 directs "retrieve a style definition from `references/default
 | COMIC | [`comic.md`](./comic.md) | Two inks on cheap paper, looking straight down — hand-drawn ink linework on warm peach-orange ground, one accent color, bird's-eye view. |
 | CANDY | [`candy.md`](./candy.md) | A painting you can't quite focus on, interrupted by color that doesn't explain itself — soft plein-air landscape behind sharp opaque color fields. |
 | VAPORWARE | [`vaporware.md`](./vaporware.md) | Akira meets Marty McFly in Brazil (1985) — photoreal speculative consumer electronics, cream + safety orange, soft studio light. |
-<<<<<<< Updated upstream
-| INDIGO | [`indigo.md`](./indigo.md) | Purple glitch-field surrealism where the seam is the composition — violet/electric-indigo, magenta shadows, acid-cyan accents, heavy datamosh/scanline degradation. |
-=======
 | NEON-SEAMS | `styles.jsonl` (user-created) | the agent's asset style — violet/iridescent form self-luminous against near-black void, outer edge dissolving into glitch particles + neon seams. Routes via gentube (skill gentube-image-gen). |
->>>>>>> Stashed changes
 
 ## Adding a new default style
 

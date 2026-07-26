@@ -8,11 +8,7 @@ Art-direction engine for text-to-image generation. Separates Style from Content 
 **Version:** 1.0.5
 **Type:** 
 **Layer:** creative
-<<<<<<< Updated upstream
-**Author:** Indigo Karasu
-=======
 **Author:** <agent-name>
->>>>>>> Stashed changes
 
 ---
 
