@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.0] - 2026-09-16
+
+### Changed
+- **Concise art-direction output schema** — art-direction output formatted as structured JSON (prompt text, normalized style_weights per section, negative_prompt, content_summary) for programmatic consumption.
+
+
 ## [1.0.4] - 2026-04-14
 
 ### Changed

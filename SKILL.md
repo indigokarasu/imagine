@@ -8,7 +8,7 @@ includes:
 - scripts/**
 metadata:
   author: Indigo Karasu (indigokarasu)
-  version: 1.0.5
+  version: "1.1.0"
   hermes:
     category: creative
     tags:
@@ -97,6 +97,20 @@ Use when the user wants an image in a known or predefined style.
 **I/O Example:**
 - Input: `imagine.generate --style noir --content "a detective standing under a streetlight at night"`
 - Output: `{"status": "ok", "image": "<active-mode image URL or file path>", "journal_id": "2026-06-27_abc123"}`
+
+**Concise art-direction output schema:** Art-direction output is formatted as structured JSON containing prompt text, style weights, and negative prompts:
+
+```json
+{
+  "prompt": "<Style Prompt + Content Prompt concatenated, style first>",
+  "style_slug": "noir",
+  "style_weights": {"mood": 0.8, "composition": 0.7, "color": 0.9, "texture": 0.6},
+  "negative_prompt": "blurry, low quality, distorted, watermark",
+  "content_summary": "a detective standing under a streetlight at night"
+}
+```
+
+Rules: `style_weights` are normalized 0.0–1.0 relative weights per standard style section; `negative_prompt` carries the style library's default exclusions unless overridden; `prompt` is always the executable style+content concatenation (per Flow 1 step 3). Use this schema for any art-direction output consumed programmatically.
 
 ### Flow 2: Style Extraction (image → style)
 
