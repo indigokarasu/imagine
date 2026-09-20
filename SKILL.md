@@ -46,6 +46,10 @@ When invoked interactively, present a two-level menu. See `references/interactiv
 - Editing or post-processing existing images → use an image editor
 - Image captioning or description → use `ocas-look`
 
+## RULE — Read the Skill End-to-End Before Any Generation Run
+
+Before ANY imagine run — especially the first after a gap in usage — read this SKILL.md and `references/api_reference.md` in full. Never reconstruct the methodology from memory of past runs and never guess the generation path: the skill documents the exact working procedure (current-model routing + GenTube browser bridge). If you catch yourself hand-rolling a substitute (hand-coded SVGs, a separate model, ad-hoc scripts), STOP — that is the signature of not having read the skill; fix the blocker instead. (Confirmed 2026-09-19: a banner run skipped the full read, hand-coded SVGs for ~50 turns, then found the documented path.)
+
 ## Responsibility Boundary
 
 **Imagine does:** style library management, style extraction from reference images, art-directed prompt synthesis, image generation through the current active conversation model when that model is text-to-image capable, and journaling of every generation and extraction run.
@@ -198,6 +202,7 @@ Public.
 - **Style-content concatenation order matters** — The final API prompt must be Style Prompt first, then Content Prompt. Reversing the order causes the model to prioritize subject over aesthetics.
 - **Current-model failures are terminal** — When the active conversation model cannot emit image bytes/attachments through the current surface, there is no built-in retry in the skill itself. Log degraded mode and report the interface problem. Do not route around it via `image_generate`, Pollinations/Pollination, FAL, or direct provider calls.
 - **Validation triple is mandatory** — Every generation must produce entries in `history.jsonl`, a journal file, AND `evidence.jsonl`. A generation missing any of these is considered invalid per the OKR data_integrity target.
+- **Skipping the full read is the #1 failure mode** — Every usage regression traces to not reading SKILL.md + `references/api_reference.md` end-to-end before generating. Read first, generate second. Hand-coded SVG substitutes for image generation are prohibited when the documented path is available.
 
 ## Error Handling
 
