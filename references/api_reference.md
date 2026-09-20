@@ -22,6 +22,19 @@ Do **not** call any of these as implementation fallbacks unless <operator> expli
 
 ## Current-Model Request Shape
 
+In this setup the active text-to-image path is the **GenTube browser bridge** (gentube.app via
+the Hermes browser tool). The concrete execution path:
+
+1. Ensure logged in (see gentube-mcp `references/browser-tool-login.md` — vault fill, not typing).
+2. Navigate to `https://www.gentube.app/create` (use a named browser session — it persists across calls).
+3. Set aspect ratio: click `aria-label="Change aspect ratio"` → choose `16:9 widescreen`.
+4. Fill the `Type to Create ✨` textarea with **Style Prompt first, Content Prompt second**.
+5. Click `aria-label="Create"`. Poll for an `<img>` whose `src` starts with `data:image` and
+   `naturalWidth > 200` (alt="Generated image").
+6. Extract the base64 data URI via `browser_console` (JS returning filtered img srcs), decode,
+   resize to exact target with PIL LANCZOS (GenTube's "16:9" renders 1344×768 — always resize).
+7. Verify: PIL opens the file, 1600×900, white-bright pixel fraction < 1% (text-leak check).
+
 Use natural-language image output instructions, not a tool call:
 
 ```text
