@@ -242,3 +242,8 @@ Public.
 
 - **schedule_adherence**: 100% — on-demand only; every invocation completes or reports error within timeout. Measured via evidence.jsonl timestamps.
 - **data_integrity**: 100% — every run produces valid history.jsonl + journal + evidence.jsonl records. A run missing any record is invalid.
+
+## Support Files
+
+- `references/indigo.md` — INDIGO -- Style Prompt
+- `scripts/update.sh` — update.sh — Self-update ocas-imagine from GitHub
