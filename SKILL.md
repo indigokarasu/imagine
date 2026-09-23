@@ -177,7 +177,7 @@ This skill implements the recovery contract from `spec-ocas-recovery.md`.
     {run_id}.json    # One journal file per run
 ```
 
-Config follows `ConfigBase` from `spec-ocas-shared-schemas.md`. All paths use the `{agent_root}/commons/` root per `spec-ocas-storage-conventions.md`.
+Config follows `ConfigBase` from [[`spec-ocas-shared-schemas.md` ⚠️ Pending spec] ⚠️ Pending spec — not yet authored]. All paths use the `{agent_root}/commons/` root per [[`spec-ocas-storage-conventions.md` ⚠️ Pending spec] ⚠️ Pending spec — not yet authored].
 
 ## Implementation Details
 
