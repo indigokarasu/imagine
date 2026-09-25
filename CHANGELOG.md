@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.1.1] - 2026-09-24
+
+### Changed
+- **Conciseness/progressive-disclosure refactor** — the art-direction output schema moved to `references/output-schema.md` and the storage layout tree to `references/storage-layout.md`; SKILL.md keeps one-line pointers and stays within the 14,000-character budget.
+- Removed stale references to `scripts/update.sh` and `references/self-update-imagine.md`; `includes:` now lists only `references/**` (self-update is centralized in the `skills:update-fleet` cron).
+- `license:` moved to position 2 in frontmatter so the D1 heuristic sees it within the first 500 characters.
+- Fixed the stale `~/openclaw/...` path in `references/default_styles.md`; added the missing INDIGO row to the default-styles index; removed the stale "update from GitHub" menu option from `references/interactive-menu.md`; added a table of contents to `references/style_prompt_guide.md`.
+- Cleared garbled text and deprecated-dependency claims from `README.md`.
+
+### Added
+- `tests/test_skill_integrity.py` — frontmatter, dead-reference, orphan-reference, conflict-marker, and bundled-data integrity checks.
+- `.github/workflows/ci.yml` — CI running the unit tests plus frontmatter validation.
+- `references/storage-layout.md`, `references/output-schema.md`.
+
 ## [1.1.0] - 2026-09-16
 
 ### Changed

@@ -25,11 +25,11 @@ triggers:
 
 # Imagine
 
-Imagine is an art-direction engine that treats image generation as a two-part process: **Style Prompting** and **Content Prompting**. Decoupling aesthetic DNA from subject matter lets a series of images share one visual identity while their content varies — style is stable across many images, content changes per request.
+An art-direction engine that treats image generation as a two-part process: **Style Prompting** + **Content Prompting**. Decoupling aesthetic DNA from subject matter lets a series of images share one visual identity while content varies.
 
 ## Interactive Menu
 
-When invoked interactively, present a two-level menu using the `clarify` tool. See `references/interactive-menu.md` for the full menu structure.
+When invoked interactively, present the two-level menu (uses the `clarify` tool). Full structure: `references/interactive-menu.md`.
 
 ## When to Use
 
@@ -47,27 +47,27 @@ When invoked interactively, present a two-level menu using the `clarify` tool. S
 
 ## RULE — Read the Skill End-to-End Before Any Generation Run
 
-Before ANY imagine run — especially the first after a gap in usage — read this SKILL.md and `references/api_reference.md` in full. Never reconstruct the methodology from memory of past runs and never guess the generation path: the skill documents the exact working procedure (current-model routing + GenTube browser bridge). If you catch yourself hand-rolling a substitute (hand-coded SVGs, a separate model, ad-hoc scripts), STOP — that is the signature of not having read the skill; fix the blocker instead. Seen in practice: a banner run skipped the full read, hand-coded SVGs for ~50 turns, then found the documented path.
+Before ANY imagine run, read this SKILL.md and `references/api_reference.md` in full; never reconstruct the methodology from memory or guess the generation path. If you catch yourself hand-rolling a substitute (hand-coded SVGs, a separate model, ad-hoc scripts), STOP — that is the signature of not having read the skill; fix the blocker instead. **Why:** content bleed and concatenation-order failures are non-obvious, and memory-based reconstruction reliably gets them wrong.
 
 ## Responsibility Boundary
 
-**Imagine does:** style library management, style extraction from reference images, art-directed prompt synthesis, image generation through the current active conversation model when that model is text-to-image capable, and journaling of every generation and extraction run.
+**Imagine does:** style library management, style extraction from reference images, art-directed prompt synthesis, image generation through the current active conversation model (when text-to-image capable), and journaling of every run.
 
-**Imagine does not:** call the separate `image_generate` tool, or bypass the active model via Pollinations/Pollination, FAL, or direct provider endpoints (unless <operator> explicitly requests that backend); edit or post-process images; perform general web research.
+**Imagine does not:** call the separate `image_generate` tool, bypass the active model via Pollinations/Pollination, FAL, or direct provider endpoints (unless <operator> explicitly requests one), edit/post-process images, or do general web research.
 
 Routing: `ocas-look` consumes images as decision inputs; Imagine produces images as creative output. "Look at this image and do X with the info" → Look. "Make an image that looks like this" → Imagine.
 
 ## Optional Skill Cooperation
 
-Imagine functions standalone and must run normally if these are absent:
+Imagine runs standalone; these are optional and must not block a run:
 
-- **ocas-sift** — research on a referenced artist, movement, or visual vocabulary before extraction.
-- **ocas-weave** — resolving references to known people (portrait subjects) for identity context.
+- **ocas-sift** — research a referenced artist or movement before extraction.
+- **ocas-weave** — resolve portrait references to known people.
 
 ## Journal Outputs
 
-- **Action Journal** — emitted by `imagine.generate` and `imagine.style.save` (external HTTP side effect or persistent state write).
-- **Observation Journal** — emitted by `imagine.extract` and `imagine.library.list` (analysis or read-only enumeration, no side effects).
+- **Action** — `imagine.generate`, `imagine.style.save` (external side effect or persistent state write).
+- **Observation** — `imagine.extract`, `imagine.library.list` (analysis or read-only enumeration).
 
 Every run produces exactly one journal file. See `references/journal.md` for the record schema.
 
@@ -85,19 +85,19 @@ Use when the user wants an image in a known or predefined style.
 - [ ] Style selected from default_styles.md or styles.jsonl
 - [ ] Content Prompt describes only what is in the scene (no style/color/lighting keywords)
 - [ ] Final prompt = Style Prompt + Content Prompt (style first)
-- [ ] API call executed successfully
+- [ ] API call succeeded
 - [ ] Action Journal record written with final prompt + image URL
 
-1. **Select Style:** retrieve a style definition from `references/default_styles.md` or a previously saved Style Prompt in `{agent_root}/commons/data/ocas-imagine/styles.jsonl`.
+1. **Select Style:** load a style from `references/default_styles.md` or a saved Style Prompt in `{agent_root}/commons/data/ocas-imagine/styles.jsonl`.
 2. **Expand Content:** turn the user's subject request into a detailed Content Prompt.
-   - *Constraint:* describe what is in the scene, never how it looks (no colors, no style keywords, no lighting direction) — a Content Prompt carrying style keywords breaks the style/content split.
-3. **Synthesis:** concatenate Style + Content into the final prompt, style first — reversing the order makes the model prioritize subject over aesthetics.
+   - *Constraint:* describe what is in the scene, never how it looks (no colors, no style keywords, no lighting direction) — style keywords in a Content Prompt break the style/content split.
+3. **Synthesis:** concatenate Style + Content into the final prompt, style first, because reversing the order makes the model prioritize subject over aesthetics.
 4. **Execute:** submit the synthesized prompt to the current active conversation model when it is text-to-image capable. Do not call the separate `image_generate` tool, Pollinations/Pollination, FAL, or any direct provider endpoint unless <operator> explicitly asks for that backend.
 5. **Journal:** write an Action Journal record with the final synthesized prompt and the resulting image URL.
 
 **I/O Example:**
 - Input: `imagine.generate --style NOIR --content "a detective standing under a streetlight at night"`
-- Output: `{"status": "ok", "image": "<active-mode image URL or file path>", "journal_id": "2026-06-27_abc123"}`
+- Output: `{"status": "ok", "image": "<active-mode image URL or file path>", "journal_id": "r_a7f2c1"}`
 
 When art-direction output is consumed programmatically, emit the structured JSON (prompt, style_weights, negative_prompt, content_summary) defined in `references/output-schema.md`.
 
@@ -118,34 +118,34 @@ Use when the user provides an image and wants to capture its soul for future use
 2. **Exhaustive Extraction:** apply the extraction prompt in `references/style_prompt_guide.md`.
    - *Requirement:* describe the style in exhaustive detail without naming any object or content.
 3. **Semantic Organization:** organize the raw description into the five standard sections: Perspective & Composition; Lighting & Shadow; Color Palette; Brushwork & Technique; Image Framing & Balance.
-4. **Verification:** generate a Style Test image of an unrelated, simple subject to confirm the prompt is robust and free of content bleed — a prompt with content bleed produces inconsistent results across subjects.
+4. **Verification:** generate a Style Test image of an unrelated simple subject to confirm the prompt is robust and content-bleed-free (bleed produces inconsistent results across subjects).
 5. **Save:** append the resulting Style Prompt to `{agent_root}/commons/data/ocas-imagine/styles.jsonl`.
 6. **Journal:** write an Observation Journal record for the extraction.
 
 **I/O Example:**
 - Input: `imagine.extract --image https://example.com/ref-photo.jpg`
-- Output: `{"status": "ok", "style_name": "extracted-noir", "style_prompt": "...", "test_image_url": "...", "journal_id": "2026-06-27_def456"}`
+- Output: `{"status": "ok", "style_name": "extracted-noir", "style_prompt": "...", "test_image_url": "...", "journal_id": "r_9c3e02"}`
 
 ## Commands
 
 - `imagine.generate --style <name|prompt> --content <description>` — generate an image in a specific style.
-- `imagine.extract --image <path|url>` — analyze an image and produce a structured Style Prompt.
-- `imagine.library.list` — list all available predefined and saved styles.
-- `imagine.style.save --name <name> --prompt <prompt>` — save a new custom style to the library.
-- `imagine.journal` — read the most recent run record (final prompt + resulting image URL).
+- `imagine.extract --image <path|url>` — analyze an image into a structured Style Prompt.
+- `imagine.library.list` — list all predefined and saved styles.
+- `imagine.style.save --name <name> --prompt <prompt>` — save a custom style to the library.
+- `imagine.journal` — read the most recent run record (final prompt + image URL).
 
 ## Recovery Behavior
 
 This skill implements the recovery contract from `spec-ocas-recovery.md`.
 
-- **Evidence**: Every generation/extraction run writes an evidence record to `{agent_root}/commons/data/ocas-imagine/evidence.jsonl`, including no-op runs. The `not_activity_reason` field is mandatory when no side effects occur.
+- **Evidence**: Every generation/extraction run writes an evidence record to `{agent_root}/commons/data/ocas-imagine/evidence.jsonl`, including no-op runs (`not_activity_reason` mandatory when no side effects occur).
 - **Gap detection**: Not applicable — on-demand only.
-- **Degraded mode**: When the current active conversation model cannot emit image attachments through the current surface, log `degraded: current_model_t2i_unavailable` and return the interface error without using fallback backends.
+- **Degraded mode**: If the active model cannot emit image attachments through the current surface, log `degraded: current_model_t2i_unavailable` and return the interface error; no fallback backends.
 - **Log compaction**: Evidence and history logs older than 30 days compacted; last 7 days retained.
 
 ## Storage Layout
 
-All state lives under `{agent_root}/commons/` — layout tree, ConfigBase notes, and pending-spec pointers are in `references/storage-layout.md`. Never write skill state inside the skill directory.
+All state lives under `{agent_root}/commons/` — layout tree, ConfigBase notes, and pending-spec pointers: `references/storage-layout.md`. Never write skill state inside the skill directory.
 
 ## Implementation Details
 
@@ -165,23 +165,23 @@ Public.
 
 ## Gotchas
 
-- **Content bleed invalidates a Style Prompt** — If a Style Prompt references specific objects, people, or scene content, it will produce inconsistent results across subjects. Always verify with a Style Test image of an unrelated, simple subject before saving.
-- **Style-content concatenation order matters** — The final prompt must be Style Prompt first, then Content Prompt. Reversing the order causes the model to prioritize subject over aesthetics.
-- **Current-model failures are terminal** — When the active conversation model cannot emit image bytes/attachments through the current surface, there is no built-in retry in the skill itself. Log degraded mode and report the interface problem; do not route around it via `image_generate`, Pollinations/Pollination, FAL, or direct provider calls.
-- **Validation triple is mandatory** — Every generation must produce entries in `history.jsonl`, a journal file, AND `evidence.jsonl`. A generation missing any of these is considered invalid per the OKR data_integrity target.
-- **On-demand only — no background tasks** — Imagine has no scheduled cron jobs or heartbeat tasks; a missed run is never replayed.
+- **Content bleed invalidates a Style Prompt** — A Style Prompt naming specific objects or people produces inconsistent results across subjects. Always verify with a Style Test image of an unrelated, simple subject before saving.
+- **Style-content concatenation order matters** — Style Prompt first, then Content Prompt. Reversing the order makes the model prioritize subject over aesthetics.
+- **Current-model failures are terminal** — When the active model cannot emit image attachments through the current surface, there is no in-skill retry. Log degraded mode, report the interface problem; never route around it via `image_generate`, Pollinations/Pollination, FAL, or direct provider calls.
+- **Validation triple is mandatory** — Every generation must produce entries in `history.jsonl`, a journal file, AND `evidence.jsonl`; a run missing any of these is invalid per the OKR data_integrity target.
+- **On-demand only — no background tasks** — No cron jobs or heartbeat tasks; a missed run is never replayed.
 
 ## Error Handling
 
 | Failure | Handling |
 |---|---|
-| Current model image path unavailable (interface/tooling error) | Log `degraded: current_model_t2i_unavailable` to evidence.jsonl, return the interface error to the user, and do not use fallback backends |
-| vision_analyze fails on reference image | Retry once with explicit prompt asking for visual style description; if still failing, report error to user with image format requirements |
-| styles.jsonl is corrupted or unreadable | Initialize fresh styles.jsonl with only built-in defaults from `references/default_styles.md`; log corruption event to evidence.jsonl |
+| Current model image path unavailable (interface/tooling error) | Log `degraded: current_model_t2i_unavailable` to evidence.jsonl, return the interface error; no fallback backends |
+| vision_analyze fails on reference image | Retry once asking for a pure visual-style description; if still failing, report accepted image formats |
+| styles.jsonl is corrupted or unreadable | Initialize fresh from built-in defaults in `references/default_styles.md`; log corruption to evidence.jsonl |
 | Content Prompt accidentally contains style keywords | Halt generation, report content bleed to user, request pure content description |
-| Style Test image shows content bleed | Do NOT save the Style Prompt; report extraction failure, suggest providing a cleaner reference image |
-| Journal write fails (permissions/disk) | Log failure to stderr, still return generation result to user, flag evidence record with `journal_write_failed: true` |
-| Invalid image path or URL in extract command | Return error with accepted formats: local file path, http(s) URL; do not attempt download of unsupported schemes |
+| Style Test image shows content bleed | Do NOT save the Style Prompt; report extraction failure, suggest a cleaner reference image |
+| Journal write fails (permissions/disk) | Log to stderr, still return the generation result, flag evidence record `journal_write_failed: true` |
+| Invalid image path or URL in extract command | Return error listing accepted formats: local path, http(s) URL; never fetch unsupported schemes |
 
 ## Support File Map
 
@@ -194,13 +194,13 @@ Public.
 | `references/interactive-menu.md` | When invoked interactively via `/` — full two-level menu structure |
 | `references/journal.md` | Before writing any journal file; contains the record schema |
 | `references/api_reference.md` | When executing generation; contains the current-model routing contract |
-| `references/indigo.md` | When a violet glitch-field / signal-decay aesthetic is requested or identified |
-| `references/soma.md` | When user requests or you identify a soft luminous gradient aesthetic |
-| `references/noir.md` | When user requests or you identify a flat silhouette + low sun aesthetic |
-| `references/hiro.md` | When user requests or you identify a woodblock print aesthetic |
-| `references/comic.md` | When user requests or you identify an ink linework + warm ground aesthetic |
-| `references/candy.md` | When user requests or you identify a plein-air + opaque color field aesthetic |
-| `references/vaporware.md` | When user requests or you identify a retro consumer electronics aesthetic |
+| `references/indigo.md` | When a violet glitch-field / signal-decay aesthetic is requested |
+| `references/soma.md` | When a soft luminous gradient aesthetic is requested or identified |
+| `references/noir.md` | When a flat silhouette + low sun aesthetic is requested or identified |
+| `references/hiro.md` | When a woodblock print aesthetic is requested or identified |
+| `references/comic.md` | When an ink linework + warm ground aesthetic is requested or identified |
+| `references/candy.md` | When a plein-air + opaque color field aesthetic is requested |
+| `references/vaporware.md` | When a retro consumer electronics aesthetic is requested |
 | `tests/test_skill_integrity.py` | When editing SKILL.md or support files — run `python3 -m unittest discover -s tests` before finishing |
 
 ## Validation Rules
@@ -212,5 +212,5 @@ Public.
 
 ## OKRs
 
-- **schedule_adherence**: 100% — on-demand only; every invocation completes or reports error within timeout. Measured via evidence.jsonl timestamps.
+- **schedule_adherence**: 100% — on-demand only; every invocation completes or errors within timeout (measured via evidence.jsonl timestamps).
 - **data_integrity**: 100% — every run produces valid history.jsonl + journal + evidence.jsonl records. A run missing any record is invalid.

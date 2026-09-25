@@ -9,12 +9,12 @@ result = clarify(
         "generate — Generate an image",
         "extract-style — Extract style from image",
         "library.list — List saved styles",
-        "More — journal, update from GitHub",
+        "More — journal, save style",
     ]
 )
 ```
 
-If the user selects **More**, present a second clarify with choices: "journal — Write journal for current run", "update — Pull latest from GitHub".
+If the user selects **More**, present a second clarify with choices: "journal — Write journal for current run", "save-style — Save a custom style to the library".
 
 After the user selects an action, execute it following the relevant procedure in this skill. Loop back to the menu after each action completes, until the user chooses to exit or sends `/stop`.
 
@@ -25,5 +25,3 @@ Match the user's response against the full choice string. If the response doesn'
 ### Platform adaptation
 
 On CLI, choices are navigable with arrow keys. On messaging platforms, choices render as a numbered list. The max-4-choices rule applies at every menu level.
-
-

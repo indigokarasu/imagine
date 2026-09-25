@@ -2,6 +2,8 @@
 
 Based on the Narrative Style Creation & Transfer methodology. This guide defines how to create, validate, and use Style Prompts that are "content-pure."
 
+**Sections:** [The Fundamental Rule](#the-fundamental-rule) · [The Five Semantic Categories](#the-five-semantic-categories) · [Creating a Style Prompt](#creating-a-style-prompt) · [Validation: The Style Test](#validation-the-style-test) · [Content Prompt Rules](#content-prompt-rules) · [Combining Style + Content](#combining-style--content)
+
 ---
 
 ## The Fundamental Rule
