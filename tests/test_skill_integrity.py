@@ -21,6 +21,9 @@ SKILL_DIR = os.path.dirname(HERE)
 SKILL_MD = os.path.join(SKILL_DIR, "SKILL.md")
 REFS_DIR = os.path.join(SKILL_DIR, "references")
 
+SKILL_NAME_RE = re.compile(r"^ocas-[a-z0-9]+(?:-[a-z0-9]+)*$")
+REPO_SLUG_RE = re.compile(r"github\.com/[^/]+/([A-Za-z0-9._\-]+)")
+
 TEXT_SUFFIXES = (".md", ".json", ".jsonl", ".py", ".yml", ".yaml")
 SUPPORT_REF_RE = re.compile(r"(?:references|scripts|assets|templates)/[A-Za-z0-9._\-/]+")
 REF_FILE_RE = re.compile(r"references/([A-Za-z0-9._\-]+\.md)")
@@ -49,7 +52,7 @@ class TestFrontmatter(unittest.TestCase):
         if yaml is None:
             self.skipTest("PyYAML not installed")
         fm = yaml.safe_load(frontmatter_block(read(SKILL_MD)))
-        self.assertEqual(fm["name"], os.path.basename(SKILL_DIR))
+        self.assertRegex(fm["name"], SKILL_NAME_RE)
         self.assertTrue(fm.get("description"))
         self.assertLessEqual(len(fm["description"]), 1024)
         self.assertIn("license", fm)
@@ -60,6 +63,23 @@ class TestFrontmatter(unittest.TestCase):
     def test_license_appears_early_in_file(self):
         # The library's D1 heuristic checks the first 500 chars of SKILL.md.
         self.assertIn("license", read(SKILL_MD)[:500].lower())
+
+    def test_name_matches_declared_source_repo(self):
+        """The skill name is 'ocas-' plus the source repo slug.
+
+        This is the real identity link between frontmatter and the repo.
+        The checkout directory name is deliberately NOT used: skill repos
+        are published under short names ('imagine') while frontmatter keeps
+        the 'ocas-' prefix, and a local clone can be named anything.
+        """
+        if yaml is None:
+            self.skipTest("PyYAML not installed")
+        fm = yaml.safe_load(frontmatter_block(read(SKILL_MD)))
+        source = fm.get("source", "")
+        slug = REPO_SLUG_RE.search(source)
+        if not slug:
+            self.skipTest(f"source is not a GitHub repo URL: {source!r}")
+        self.assertEqual(fm["name"], "ocas-" + slug.group(1))
 
 
 class TestReferences(unittest.TestCase):
